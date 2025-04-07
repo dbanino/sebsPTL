@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PTL Corgination</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: linear-gradient(135deg, #d6c6f2, #ffe1e1);
+      font-family: 'Georgia', serif;
+      color: #2c2c2c;
+    }
+
+    .corgi {
+      position: absolute;
+      width: 100px;
+      animation: floatCorgi 10s linear;
+      pointer-events: none;
+    }
+
+    @keyframes floatCorgi {
+      0% {
+        transform: translate(-150px, 0);
+        opacity: 0.9;
+      }
+      100% {
+        transform: translate(100vw, -100vh);
+        opacity: 0;
+      }
+    }
+
+    .queen {
+      position: absolute;
+      width: 120px;
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    #play-music {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      padding: 10px 15px;
+      font-size: 16px;
+      background-color: white;
+      border: 2px solid black;
+      border-radius: 10px;
+      z-index: 100;
+      cursor: pointer;
+      display: none;
+    }
+
+    #countdown-container {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: rgba(255, 255, 255, 0.85);
+      border: 4px solid #5c3d99;
+      padding: 30px 40px;
+      border-radius: 25px;
+      z-index: 99;
+      text-align: center;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    }
+
+    #countdown-container h2 {
+      margin: 0 0 15px;
+      font-size: 32px;
+    }
+
+    #countdown {
+      font-size: 48px;
+      font-weight: bold;
+      color: #2c2c2c;
+    }
+
+    #monty {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 300px;
+      z-index: 1000;
+      display: none;
+      animation: fadeIn 2s ease-in-out forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+      to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    }
+  </style>
+</head>
+<body>
+  <!-- Big Royal Countdown -->
+  <div id="countdown-container">
+    <h2>PTL ASF 🎉👑🇬🇧🐶🫖🎊</h2>
+    <div id="countdown">Loading...</div>
+  </div>
+
+  <!-- Monty Python Reveal -->
+  <img id="monty" src="monte.gif" alt="Monty Python">
+
+  <!-- Audio -->
+  <audio id="bark-sound" src="bark.mp3" preload="auto"></audio>
+  <audio id="bg-music" src="music.mp3" preload="auto" loop></audio>
+
+  <!-- Fallback Play Button -->
+  <button id="play-music">Play Music 🎵</button>
+
+  <script>
+    const totalCorgis = 5;
+    const barkSound = document.getElementById('bark-sound');
+    const bgMusic = document.getElementById('bg-music');
+    const playBtn = document.getElementById('play-music');
+    const countdownEl = document.getElementById('countdown');
+    const monty = document.getElementById('monty');
+
+    let countdownOver = false;
+
+    // Autoplay music and spawn queens
+    window.addEventListener('load', () => {
+      bgMusic.volume = 0.4;
+      bgMusic.play().catch(() => {
+        playBtn.style.display = 'block';
+      });
+      spawnMultipleQueens(8);
+    });
+
+    playBtn.addEventListener('click', () => {
+      bgMusic.play();
+      playBtn.style.display = 'none';
+    });
+
+    function spawnCorgi(randomPos = true) {
+      const corgiNum = Math.floor(Math.random() * totalCorgis) + 1;
+      const corgi = document.createElement('img');
+      corgi.src = `corgi${corgiNum}.gif`;
+      corgi.className = 'corgi';
+      corgi.style.left = `${Math.random() * 100}vw`;
+      corgi.style.top = `${Math.random() * 100}vh`;
+      corgi.style.animationDuration = `${4 + Math.random() * 4}s`;
+      document.body.appendChild(corgi);
+
+      if (Math.random() < 0.5) {
+        barkSound.currentTime = 0;
+        barkSound.play();
+      }
+
+      setTimeout(() => corgi.remove(), 10000);
+    }
+
+    setInterval(() => {
+      if (!countdownOver) spawnCorgi();
+    }, 500);
+
+    function spawnMultipleQueens(count) {
+      for (let i = 0; i < count; i++) {
+        const queen = document.createElement('img');
+        queen.src = 'queen.png';
+        queen.className = 'queen';
+        queen.style.left = `${Math.random() * 90}vw`;
+        queen.style.top = `${Math.random() * 90}vh`;
+        document.body.appendChild(queen);
+      }
+    }
+
+    // Corgi Explosion!
+    function corgiExplosion() {
+      for (let i = 0; i < 100; i++) {
+        setTimeout(spawnCorgi, i * 30);
+      }
+    }
+
+    // Countdown Timer
+    const targetDate = new Date('2025-04-11T03:59:00Z'); // April 10, 11:59 PM EST
+
+    function updateCountdown() {
+      const now = new Date();
+      const diff = targetDate - now;
+
+      if (diff <= 0 && !countdownOver) {
+        countdownOver = true;
+        countdownEl.innerText = "🎉🎆👑 The PTL ASF has begun! Let the corgination commence! 🐶🇬🇧🎊";
+        corgiExplosion();
+        monty.style.display = 'block';
+        return;
+      }
+
+      if (!countdownOver) {
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+        const minutes = Math.floor((diff / (1000 * 60)) % 60);
+        const seconds = Math.floor((diff / 1000) % 60);
+        countdownEl.innerText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+      }
+    }
+
+    setInterval(updateCountdown, 1000);
+    updateCountdown();
+  </script>
+</body>
+</html>
